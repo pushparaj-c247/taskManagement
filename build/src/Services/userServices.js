@@ -12,11 +12,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteUser = exports.updateUser = exports.createUser = void 0;
+exports.getOneUser = exports.getAllUser = exports.deleteUser = exports.updateUser = exports.createUser = void 0;
 const userModel_1 = __importDefault(require("../Model/userModel"));
 const createUser = (obj) => {
     userModel_1.default.create({
-        name: obj.name,
+        userName: obj.userName,
         email: obj.email,
         password: obj.password,
     });
@@ -24,7 +24,9 @@ const createUser = (obj) => {
 };
 exports.createUser = createUser;
 const updateUser = (id, obj) => __awaiter(void 0, void 0, void 0, function* () {
-    yield userModel_1.default.findByIdAndUpdate(id, { $set: { name: obj.name, email: obj.email, password: obj.password } });
+    yield userModel_1.default.findByIdAndUpdate(id, {
+        $set: { userName: obj.userName, email: obj.email, password: obj.password },
+    });
     return " User Is Updated Sucessfully";
 });
 exports.updateUser = updateUser;
@@ -33,3 +35,13 @@ const deleteUser = (id) => __awaiter(void 0, void 0, void 0, function* () {
     return "User Is Deleted Sucessfully";
 });
 exports.deleteUser = deleteUser;
+const getAllUser = () => __awaiter(void 0, void 0, void 0, function* () {
+    const all = yield userModel_1.default.find();
+    return all;
+});
+exports.getAllUser = getAllUser;
+const getOneUser = (usid) => __awaiter(void 0, void 0, void 0, function* () {
+    const one = yield userModel_1.default.findById(usid);
+    return one;
+});
+exports.getOneUser = getOneUser;

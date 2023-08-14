@@ -6,4 +6,6 @@ const router = (0, express_1.Router)();
 router.post("/createUser", userController_1.createUserController);
 router.put("/updateUser/:id", userController_1.updateUserController);
 router.delete("/deleteUser/:id", userController_1.deleteUsercontroller);
+router.get("/getAllUser", userController_1.getAllUserControlller);
+router.get("/getOneUser/:id", userController_1.getOneUserControlller);
 exports.default = router;

@@ -1,17 +1,18 @@
 import userSchema from "../Model/userModel";
 import obj from "../interfaces/userInterface";
 
-
 const createUser = (obj: obj) => {
   userSchema.create({
-    name: obj.name,
+    userName: obj.userName,
     email: obj.email,
     password: obj.password,
   });
   return " User Is Created Sucessfully";
 };
-const updateUser = async(id: string, obj: obj) => {
-  await userSchema.findByIdAndUpdate(id, { $set: { name: obj.name, email: obj.email, password: obj.password } })
+const updateUser = async (id: string, obj: obj) => {
+  await userSchema.findByIdAndUpdate(id, {
+    $set: { userName: obj.userName, email: obj.email, password: obj.password },
+  });
   return " User Is Updated Sucessfully";
 };
 const deleteUser = async (id: string) => {
@@ -19,4 +20,13 @@ const deleteUser = async (id: string) => {
   return "User Is Deleted Sucessfully";
 };
 
-export { createUser, updateUser, deleteUser };
+const getAllUser = async () =>{
+  const all = await userSchema.find();
+  return all ;
+}
+const getOneUser = async (usid: string) =>{
+  const one = await userSchema.findById(usid);
+  return one;
+}
+
+export { createUser, updateUser, deleteUser, getAllUser, getOneUser};
