@@ -20,12 +20,21 @@ const createTask = (obj) => {
         description: obj.description,
         assignedTo: obj.assignedTo,
         assignedBy: obj.assignedBy,
+        statusType: obj.statusType,
     });
     return " Task Is Created Sucessfully";
 };
 exports.createTask = createTask;
 const updateTask = (id, obj) => __awaiter(void 0, void 0, void 0, function* () {
-    yield taskModel_1.default.findByIdAndUpdate(id, { $set: { task: obj.subject } });
+    yield taskModel_1.default.findByIdAndUpdate(id, {
+        $set: {
+            subject: obj.subject,
+            description: obj.description,
+            assignedTo: obj.assignedTo,
+            assignedBy: obj.assignedBy,
+            statusType: obj.statusType,
+        },
+    });
     return " Task Is Updated Sucessfully";
 });
 exports.updateTask = updateTask;

@@ -7,12 +7,21 @@ const createTask = (obj: objs) => {
     description: obj.description,
     assignedTo: obj.assignedTo,
     assignedBy: obj.assignedBy,
+    statusType: obj.statusType,
   });
 
   return " Task Is Created Sucessfully";
 };
 const updateTask = async (id: string, obj: objs) => {
-  await taskSchema.findByIdAndUpdate(id, { $set: { task: obj.subject } });
+  await taskSchema.findByIdAndUpdate(id, {
+    $set: {
+      subject: obj.subject,
+      description: obj.description,
+      assignedTo: obj.assignedTo,
+      assignedBy: obj.assignedBy,
+      statusType: obj.statusType,
+    },
+  });
   return " Task Is Updated Sucessfully";
 };
 const deleteTask = async (id: string) => {

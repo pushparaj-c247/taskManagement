@@ -3,6 +3,6 @@ interface objs {
     description: string,
     assignedTo: string,
     assignedBy: string,
-    statusTracking: string
+    statusType: string,
 }
 export default objs ;

@@ -13,12 +13,22 @@ const taskSchema = new mongoose_1.default.Schema({
         type: String,
         required: true,
     },
-    assignedTo: { type: mongoose_1.default.Schema.Types.ObjectId, ref: 'User' },
-    assignedBy: { type: mongoose_1.default.Schema.Types.ObjectId, ref: 'User' },
+    assignedTo: {
+        type: mongoose_1.default.Schema.Types.ObjectId,
+        required: true,
+        ref: "User",
+    },
+    assignedBy: {
+        type: mongoose_1.default.Schema.Types.ObjectId,
+        required: true,
+        ref: "User",
+    },
     statusType: {
         type: String,
-        enum: ['pending', 'completed'], default: 'pending'
+        required: true,
+        enum: ["pending", "completed"],
+        default: "pending",
     },
-    Date: { type: Date, required: true, default: Date.now },
+    Date: { type: Date, default: Date.now },
 });
 exports.default = mongoose_1.default.model("task", taskSchema);

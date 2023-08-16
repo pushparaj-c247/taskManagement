@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getOneUserControlller = exports.getAllUserControlller = exports.deleteUsercontroller = exports.updateUserController = exports.createUserController = void 0;
+exports.loginController = exports.getVerifyController = exports.getOneUserControlller = exports.getAllUserControlller = exports.deleteUsercontroller = exports.updateUserController = exports.createUserController = void 0;
 const userServices_1 = require("../Services/userServices");
 const createUserController = (req, res) => {
     const createU = (0, userServices_1.createUser)(req.body);
@@ -36,3 +36,12 @@ const getOneUserControlller = (req, res) => __awaiter(void 0, void 0, void 0, fu
     return res.send(oneUser);
 });
 exports.getOneUserControlller = getOneUserControlller;
+const getVerifyController = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const verify = yield (0, userServices_1.getVerify)(req.body);
+    return res.send(verify);
+});
+exports.getVerifyController = getVerifyController;
+const loginController = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    return yield (0, userServices_1.login)(req, res);
+});
+exports.loginController = loginController;

@@ -12,16 +12,21 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getOneUser = exports.getAllUser = exports.deleteUser = exports.updateUser = exports.createUser = void 0;
+exports.login = exports.getVerify = exports.getOneUser = exports.getAllUser = exports.deleteUser = exports.updateUser = exports.createUser = void 0;
 const userModel_1 = __importDefault(require("../Model/userModel"));
-const createUser = (obj) => {
-    userModel_1.default.create({
-        userName: obj.userName,
-        email: obj.email,
-        password: obj.password,
-    });
-    return " User Is Created Sucessfully";
-};
+const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const bcrypt_1 = __importDefault(require("bcrypt"));
+const process_1 = require("process");
+const createUser = (obj) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        obj.password = yield bcrypt_1.default.hash(obj.password, 10);
+        yield userModel_1.default.create(obj);
+        return "user created";
+    }
+    catch (e) {
+        console.log(process_1.emit);
+    }
+});
 exports.createUser = createUser;
 const updateUser = (id, obj) => __awaiter(void 0, void 0, void 0, function* () {
     yield userModel_1.default.findByIdAndUpdate(id, {
@@ -45,3 +50,35 @@ const getOneUser = (usid) => __awaiter(void 0, void 0, void 0, function* () {
     return one;
 });
 exports.getOneUser = getOneUser;
+const getVerify = (authV) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield userModel_1.default.findOne({
+        email: authV.email,
+    });
+    return result;
+});
+exports.getVerify = getVerify;
+const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { email, password } = req.body;
+        const obj = yield userModel_1.default.findOne({
+            email: email,
+        });
+        if (!obj) {
+            return res.status(400).json({
+                message: "invalid username & password",
+            });
+        }
+        const passwordMatch = bcrypt_1.default.compare(password, obj.password);
+        if (!passwordMatch) {
+            return res.status(400).json({ messge: "invalid username & password" });
+        }
+        const token = jsonwebtoken_1.default.sign({ email: obj.email, name: obj.userName }, "ABcdefg", {
+            expiresIn: "1h",
+        });
+        res.json({ message: "logged in successfully", token });
+    }
+    catch (e) {
+        console.log(e);
+    }
+});
+exports.login = login;
