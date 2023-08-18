@@ -1,46 +1,96 @@
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 import {
   createUser,
   updateUser,
   deleteUser,
   getAllUser,
   getOneUser,
-  getVerify,
-  login
+  login,
 } from "../Services/userServices";
 
-const createUserController = (req: Request, res: Response) => {
-  const createU = createUser(req.body);
-  return res.send(createU);
+const createUserController = async(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const createU = await createUser(req.body);
+    return res.send(createU);
+  }
+   catch (error) {
+    console.log("Error In CreateUser");
+    next(error);
+  }
 };
 
-const updateUserController = (req: Request, res: Response) => {
-  const updateU = updateUser(req.params.id, req.body);
-  return res.send(updateU);
+const updateUserController = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const updateU = updateUser(req.params.id, req.body);
+    return res.send(updateU);
+  } catch (error) {
+    console.log("Error In UpdateUser");
+    next(error);
+  }
 };
 
-const deleteUsercontroller = (req: Request, res: Response) => {
-  const deletU = deleteUser(req.params.id);
-  return res.send(deletU);
+const deleteUsercontroller = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const deletU = deleteUser(req.params.id);
+    return res.send(deletU);
+  } catch (error) {
+    console.log("Error In DeleteUser");
+    next(error);
+  }
 };
 
-const getAllUserControlller = async (req: Request, res: Response) => {
-  const allUser = await getAllUser();
-  return res.send(allUser);
+const getAllUserControlller = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const allUser = await getAllUser();
+    return res.send(allUser);
+  } catch (error) {
+    console.log("Error In GetAllUser");
+    next(error);
+  }
 };
-const getOneUserControlller = async (req: Request, res: Response) => {
-  const oneUser = await getOneUser(req.params.id);
-  return res.send(oneUser);
+const getOneUserControlller = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const oneUser = await getOneUser(req.params.id);
+    return res.send(oneUser);
+  } catch (error) {
+    console.log("Error In GetOneUser");
+    next(error);
+  }
 };
 
-const getVerifyController = async (req: Request, res: Response) => {
-  const verify = await getVerify(req.body);
-  return res.send(verify);
+const loginController = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    return await login(req, res);
+  } 
+  catch (error) {
+    console.log("Error In LoginUser");
+    next(error);
+  }
 };
-
-const loginController = async (req: Request, res: Response) =>{
-  return await login(req, res);
-}
 
 export {
   createUserController,
@@ -48,6 +98,5 @@ export {
   deleteUsercontroller,
   getAllUserControlller,
   getOneUserControlller,
-  getVerifyController,
-  loginController
+  loginController,
 };

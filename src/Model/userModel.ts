@@ -1,9 +1,11 @@
 import mongoose from "mongoose";
+import {obj} from "../interfaces/userInterface";
 
-const UserSchema = new mongoose.Schema({
-  userName: {
+
+const UserSchema = new mongoose.Schema<obj>({
+  name: {
     type: String,
-    required: true
+    required: true,
    
   },
   email: {
@@ -15,8 +17,13 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: true
     
-  }
+  },
+  role: {
+    type: String,
+    enum: ["user", "admin"],
+    default: "user",
+  },
 
 });
 
-export default mongoose.model("user", UserSchema);
+export default mongoose.model<obj>("user", UserSchema);

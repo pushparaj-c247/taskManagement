@@ -1,8 +1,11 @@
 interface obj {
-    userName: string;
-    email: string;
-    password: string;
-    authV: string;
-  }
+  name: string;
+  email: string;
+  password: string;
+  role: string;
+}
+interface demo {
+  assignedTo: string;
+}
 
-export default obj ;
+export { obj, demo };

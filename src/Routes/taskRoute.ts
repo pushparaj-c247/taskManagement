@@ -4,8 +4,11 @@ import {
   updateTaskController,
   deleteTaskcontroller,
   getAllTaskControlller,
-  getOneTaskControlller
+  getOneTaskControlller,
+  getMyAllTaskController,
 } from "../Controllers/taskController";
+import authorization from "../middleware/authorization";
+import passport from "../config/passport";
 const router = Router();
 
 router.post("/createTask", createTaskController);
@@ -14,10 +17,16 @@ router.put("/updateTask/:id", updateTaskController);
 
 router.delete("/deleteTask/:id", deleteTaskcontroller);
 
-router.get("/getOneTask/:id", getOneTaskControlller);
+router.get("/getOneTask/:id",passport.authenticate("jwt", { session: false }),
+authorization("admin"), getOneTaskControlller);
 
-router.get("/getAllTask", getAllTaskControlller);
+router.get(
+  "/getAllTask",
+  passport.authenticate("jwt", { session: false }),
+  authorization("admin"),
+  getAllTaskControlller
+);
 
-
+router.get("/getMyAllTask", passport.authenticate("jwt", { session: false }), getMyAllTaskController);
 
 export default router;

@@ -1,21 +1,19 @@
 import userSchema from "../Model/userModel";
-import { Request, Response } from "express";
-import obj from "../interfaces/userInterface";
+import { NextFunction, Request, Response } from "express";
+import { obj } from "../interfaces/userInterface";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
-import { emit } from "process";
+import { validationResult } from "express-validator";
+
 const createUser = async (obj: obj) => {
-  try {
-    obj.password = await bcrypt.hash(obj.password, 10);
-    await userSchema.create(obj);
-    return "user created";
-  } catch (e) {
-    console.log(emit);
-  }
+  obj.password = await bcrypt.hash(obj.password, 10);
+  await userSchema.create(obj);
+  return "user created";
 };
+
 const updateUser = async (id: string, obj: obj) => {
   await userSchema.findByIdAndUpdate(id, {
-    $set: { userName: obj.userName, email: obj.email, password: obj.password },
+    $set: { userName: obj.name, email: obj.email, password: obj.password },
   });
   return " User Is Updated Sucessfully";
 };
@@ -32,51 +30,31 @@ const getOneUser = async (usid: string) => {
   const one = await userSchema.findById(usid);
   return one;
 };
-const getVerify = async (authV: obj): Promise<obj | null> => {
-  const result: obj | null = await userSchema.findOne({
-    email: authV.email ,
-  });
 
-  return result;
-};
-const login = async (req: Request, res: Response) => {
-  try {
-    const { email, password } = req.body;
-
-    const obj: obj | null = await userSchema.findOne({
-      email: email,
-    });
-    if (!obj) {
-      return res.status(400).json({
-        message: "invalid username & password",
-      });
-    }
-
-    const passwordMatch = bcrypt.compare(password, obj.password);
-    
-
-    if (!passwordMatch) {
-      return res.status(400).json({ messge: "invalid username & password" });
-    }
-    const token = jwt.sign(
-      { email: obj.email, name: obj.userName },
-      "ABcdefg",
-      {
-        expiresIn: "1h",
-      }
-    );
-    res.json({ message: "logged in successfully", token });
-  } catch (e) {
-    console.log(e);
+const login = async (req: Request, res: Response ) => {
+  const result = validationResult(req);
+  if (!result.isEmpty()) {
+    return res.send({ errors: result["errors"][0] });
   }
-};
+  const { email, password } = req.body;
+  const obj: obj | null = await userSchema.findOne({
+    email: email,
+  });
+  if (!obj) {
+    return res.status(400).json({
+      message: "invalid username & password",
+    });
+  }
 
-export {
-  createUser,
-  updateUser,
-  deleteUser,
-  getAllUser,
-  getOneUser,
-  getVerify,
-  login,
-};
+  const passwordMatch = bcrypt.compare(password, obj.password);
+
+  if (!passwordMatch) {
+    return res.status(400).json({ messge: "invalid username & password" });
+  }
+  const token = jwt.sign({ email: obj.email, name: obj.name }, "ABcdefg", {
+    expiresIn: "1h",
+  });
+  res.json({ message: "logged in successfully", token });
+}
+
+export { createUser, updateUser, deleteUser, getAllUser, getOneUser, login };

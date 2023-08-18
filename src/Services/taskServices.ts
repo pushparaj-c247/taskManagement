@@ -1,5 +1,6 @@
 import taskSchema from "../Model/taskModel";
 import objs from "../interfaces/taskInterface";
+import { demo } from "../interfaces/userInterface";
 
 const createTask = (obj: objs) => {
   taskSchema.create({
@@ -29,13 +30,28 @@ const deleteTask = async (id: string) => {
   return " Task Is Deleted Sucessfully";
 };
 const getAllTask = async () => {
-  const all = await taskSchema.find();
+  const all = await taskSchema.find().populate(["assignedTo", "assignedBy"]);
   return all;
 };
 
 const getOneTask = async (oneid: string) => {
-  const one = await taskSchema.findById(oneid);
+  const one = await taskSchema
+    .findById(oneid)
+    .populate(["assignedTo", "assignedBy"]);
   return one;
 };
 
-export { createTask, updateTask, deleteTask, getAllTask, getOneTask };
+const getMyAllTask = async (assign: demo) => {
+  const { assignedTo } = assign;
+  const myT = await taskSchema.find({ assignedTo });
+  return myT;
+};
+
+export {
+  createTask,
+  updateTask,
+  deleteTask,
+  getAllTask,
+  getOneTask,
+  getMyAllTask,
+};

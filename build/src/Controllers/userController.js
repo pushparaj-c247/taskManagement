@@ -9,39 +9,70 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.loginController = exports.getVerifyController = exports.getOneUserControlller = exports.getAllUserControlller = exports.deleteUsercontroller = exports.updateUserController = exports.createUserController = void 0;
+exports.loginController = exports.getOneUserControlller = exports.getAllUserControlller = exports.deleteUsercontroller = exports.updateUserController = exports.createUserController = void 0;
 const userServices_1 = require("../Services/userServices");
-const createUserController = (req, res) => {
-    const createU = (0, userServices_1.createUser)(req.body);
-    return res.send(createU);
-};
+const createUserController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const createU = yield (0, userServices_1.createUser)(req.body);
+        return res.send(createU);
+    }
+    catch (error) {
+        console.log("Error In CreateUser");
+        next(error);
+    }
+});
 exports.createUserController = createUserController;
-const updateUserController = (req, res) => {
-    const updateU = (0, userServices_1.updateUser)(req.params.id, req.body);
-    return res.send(updateU);
+const updateUserController = (req, res, next) => {
+    try {
+        const updateU = (0, userServices_1.updateUser)(req.params.id, req.body);
+        return res.send(updateU);
+    }
+    catch (error) {
+        console.log("Error In UpdateUser");
+        next(error);
+    }
 };
 exports.updateUserController = updateUserController;
-const deleteUsercontroller = (req, res) => {
-    const deletU = (0, userServices_1.deleteUser)(req.params.id);
-    return res.send(deletU);
+const deleteUsercontroller = (req, res, next) => {
+    try {
+        const deletU = (0, userServices_1.deleteUser)(req.params.id);
+        return res.send(deletU);
+    }
+    catch (error) {
+        console.log("Error In DeleteUser");
+        next(error);
+    }
 };
 exports.deleteUsercontroller = deleteUsercontroller;
-const getAllUserControlller = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const allUser = yield (0, userServices_1.getAllUser)();
-    return res.send(allUser);
+const getAllUserControlller = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const allUser = yield (0, userServices_1.getAllUser)();
+        return res.send(allUser);
+    }
+    catch (error) {
+        console.log("Error In GetAllUser");
+        next(error);
+    }
 });
 exports.getAllUserControlller = getAllUserControlller;
-const getOneUserControlller = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const oneUser = yield (0, userServices_1.getOneUser)(req.params.id);
-    return res.send(oneUser);
+const getOneUserControlller = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const oneUser = yield (0, userServices_1.getOneUser)(req.params.id);
+        return res.send(oneUser);
+    }
+    catch (error) {
+        console.log("Error In GetOneUser");
+        next(error);
+    }
 });
 exports.getOneUserControlller = getOneUserControlller;
-const getVerifyController = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const verify = yield (0, userServices_1.getVerify)(req.body);
-    return res.send(verify);
-});
-exports.getVerifyController = getVerifyController;
-const loginController = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    return yield (0, userServices_1.login)(req, res);
+const loginController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        return yield (0, userServices_1.login)(req, res);
+    }
+    catch (error) {
+        console.log("Error In LoginUser");
+        next(error);
+    }
 });
 exports.loginController = loginController;

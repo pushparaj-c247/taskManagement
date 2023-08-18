@@ -5,9 +5,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importDefault(require("mongoose"));
 const UserSchema = new mongoose_1.default.Schema({
-    userName: {
+    name: {
         type: String,
-        required: true
+        required: true,
     },
     email: {
         type: String,
@@ -16,6 +16,11 @@ const UserSchema = new mongoose_1.default.Schema({
     password: {
         type: String,
         required: true
-    }
+    },
+    role: {
+        type: String,
+        enum: ["user", "admin"],
+        default: "user",
+    },
 });
 exports.default = mongoose_1.default.model("user", UserSchema);

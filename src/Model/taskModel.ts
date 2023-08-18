@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
+import objs from "../interfaces/taskInterface";
 
-const taskSchema = new mongoose.Schema({
+const taskSchema = new mongoose.Schema<objs>({
   subject: {
     type: String,
     required: true,
@@ -12,13 +13,13 @@ const taskSchema = new mongoose.Schema({
   assignedTo: {
     type: mongoose.Schema.Types.ObjectId,
     required: true,
-    ref: "User",
+    ref: "user",
   },
 
   assignedBy: {
     type: mongoose.Schema.Types.ObjectId,
     required: true,
-    ref: "User",
+    ref: "user",
   },
 
   statusType: {
@@ -29,6 +30,7 @@ const taskSchema = new mongoose.Schema({
   },
 
   Date: { type: Date, default: Date.now },
+  
 });
 
-export default mongoose.model("task", taskSchema);
+export default mongoose.model<objs>("task", taskSchema);

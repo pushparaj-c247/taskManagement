@@ -16,12 +16,12 @@ const taskSchema = new mongoose_1.default.Schema({
     assignedTo: {
         type: mongoose_1.default.Schema.Types.ObjectId,
         required: true,
-        ref: "User",
+        ref: "user",
     },
     assignedBy: {
         type: mongoose_1.default.Schema.Types.ObjectId,
         required: true,
-        ref: "User",
+        ref: "user",
     },
     statusType: {
         type: String,

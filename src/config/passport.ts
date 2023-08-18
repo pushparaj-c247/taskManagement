@@ -10,8 +10,7 @@ opts.secretOrKey = "ABcdefg";
 
 export default passport.use(
   new JWTStrategy(opts, async function (jwt_payload, done) {
-    const userT = await UserSchema.findOne({ email: jwt_payload.email });
-
+    const userT = await UserSchema.findOne({ email: jwt_payload.email }); 
     if (userT) {
       return done(null, userT);
     } else {

@@ -1,8 +1,11 @@
+import Types from "mongoose";
+
 interface objs {
-    subject: string,
-    description: string,
-    assignedTo: string,
-    assignedBy: string,
-    statusType: string,
+  subject: string;
+  description: string;
+  assignedTo: Types.ObjectId;
+  assignedBy: Types.ObjectId;
+  statusType: string;
+  Date: Date;
 }
-export default objs ;
+export default objs;
