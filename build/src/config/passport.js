@@ -17,7 +17,8 @@ const passport_jwt_1 = __importDefault(require("passport-jwt"));
 const userModel_1 = __importDefault(require("../Model/userModel"));
 const JWTStrategy = passport_jwt_1.default.Strategy;
 const ExtractJWT = passport_jwt_1.default.ExtractJwt;
-let opts = {};
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const opts = {};
 opts.jwtFromRequest = ExtractJWT.fromAuthHeaderAsBearerToken();
 opts.secretOrKey = "ABcdefg";
 exports.default = passport_1.default.use(new JWTStrategy(opts, function (jwt_payload, done) {

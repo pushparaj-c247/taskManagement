@@ -9,7 +9,7 @@ import {
 } from "../Controllers/userController";
 import passport from "../config/passport";
 import authorization from "../middleware/authorization";
-import { body } from 'express-validator';
+import * as  expressValidator  from "../middleware/expressValidator";
 
 
 const router = Router();
@@ -24,6 +24,6 @@ router.get("/getAllUser", passport.authenticate('jwt',{session: false}), authori
 
 router.get("/getOneUser/:id", passport.authenticate('jwt',{session: false}), authorization("admin"), getOneUserControlller);
 
-router.post("/login", body('email').notEmpty(), body('password').notEmpty(), loginController)
+router.post("/login", [expressValidator.passwordValidation, expressValidator.emailValidation],loginController)
 
 export default router;

@@ -1,5 +1,5 @@
 import userSchema from "../Model/userModel";
-import { NextFunction, Request, Response } from "express";
+import { Request, Response } from "express";
 import { obj } from "../interfaces/userInterface";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
@@ -31,7 +31,7 @@ const getOneUser = async (usid: string) => {
   return one;
 };
 
-const login = async (req: Request, res: Response ) => {
+const login = async (req: Request, res: Response) => {
   const result = validationResult(req);
   if (!result.isEmpty()) {
     return res.send({ errors: result["errors"][0] });
@@ -55,6 +55,6 @@ const login = async (req: Request, res: Response ) => {
     expiresIn: "1h",
   });
   res.json({ message: "logged in successfully", token });
-}
+};
 
 export { createUser, updateUser, deleteUser, getAllUser, getOneUser, login };
