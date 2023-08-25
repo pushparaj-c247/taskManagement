@@ -28,7 +28,7 @@ const updateTaskController = (
   next: NextFunction
 ) => {
   try {
-    const updateT = updateTask(req.params.id, req.body);
+    const updateT = updateTask(req.params.id, req.body, req.user);
     return res.send(updateT);
   } catch (error) {
     console.log("Error In UpdateTask");
@@ -42,7 +42,7 @@ const deleteTaskcontroller = (
   next: NextFunction
 ) => {
   try {
-    const deletT = deleteTask(req.params.id);
+    const deletT = deleteTask(req.params.id, req.user);
     return res.send(deletT);
   } catch (error) {
     console.log("Error In DeleteTask");
@@ -55,7 +55,8 @@ const getAllTaskControlller = async (
   next: NextFunction
 ) => {
   try {
-    const alltask = await getAllTask();
+
+    const alltask = await getAllTask(req.body, req.query);
     return res.send(alltask);
   } catch (error) {
     console.log("Error In GetAllTask");
@@ -81,7 +82,7 @@ const getMyAllTaskController = async (
   next: NextFunction
 ) => {
   try {
-    const task = await getMyAllTask(req.body);
+    const task = await getMyAllTask(req.body, req.body);
     return res.send(task);
   } catch (error) {
     console.log("Error In GetMyAllTask");

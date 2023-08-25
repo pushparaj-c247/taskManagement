@@ -8,7 +8,7 @@ import {
   login,
 } from "../Services/userServices";
 
-const createUserController = async(
+const createUserController = async (
   req: Request,
   res: Response,
   next: NextFunction
@@ -17,7 +17,7 @@ const createUserController = async(
     const createU = await createUser(req.body);
     return res.send(createU);
   }
-   catch (error) {
+  catch (error) {
     console.log("Error In CreateUser");
     next(error);
   }
@@ -29,7 +29,7 @@ const updateUserController = (
   next: NextFunction
 ) => {
   try {
-    const updateU = updateUser(req.params.id, req.body);
+    const updateU = updateUser(req.params.id, req.body, req.user);
     return res.send(updateU);
   } catch (error) {
     console.log("Error In UpdateUser");
@@ -43,7 +43,7 @@ const deleteUsercontroller = (
   next: NextFunction
 ) => {
   try {
-    const deletU = deleteUser(req.params.id);
+    const deletU = deleteUser(req.params.id, req.user);
     return res.send(deletU);
   } catch (error) {
     console.log("Error In DeleteUser");
@@ -57,7 +57,7 @@ const getAllUserControlller = async (
   next: NextFunction
 ) => {
   try {
-    const allUser = await getAllUser();
+    const allUser = await getAllUser(req.body, req.query);
     return res.send(allUser);
   } catch (error) {
     console.log("Error In GetAllUser");
@@ -85,7 +85,8 @@ const loginController = async (
 ) => {
   try {
     return await login(req, res);
-  } 
+
+  }
   catch (error) {
     console.log("Error In LoginUser");
     next(error);

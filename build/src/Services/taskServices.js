@@ -13,7 +13,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getMyAllTask = exports.getOneTask = exports.getAllTask = exports.deleteTask = exports.updateTask = exports.createTask = void 0;
+const moment_1 = __importDefault(require("moment"));
 const taskModel_1 = __importDefault(require("../Model/taskModel"));
+const mongoose_1 = __importDefault(require("mongoose"));
 const createTask = (obj) => {
     taskModel_1.default.create({
         subject: obj.subject,
@@ -25,7 +27,11 @@ const createTask = (obj) => {
     return " Task Is Created Sucessfully";
 };
 exports.createTask = createTask;
-const updateTask = (id, obj) => __awaiter(void 0, void 0, void 0, function* () {
+const updateTask = (id, obj, user) => __awaiter(void 0, void 0, void 0, function* () {
+    const ids = user._id.toString();
+    if (id !== ids) {
+        return console.log("invalid");
+    }
     yield taskModel_1.default.findByIdAndUpdate(id, {
         $set: {
             subject: obj.subject,
@@ -38,26 +44,160 @@ const updateTask = (id, obj) => __awaiter(void 0, void 0, void 0, function* () {
     return " Task Is Updated Sucessfully";
 });
 exports.updateTask = updateTask;
-const deleteTask = (id) => __awaiter(void 0, void 0, void 0, function* () {
+const deleteTask = (id, user) => __awaiter(void 0, void 0, void 0, function* () {
+    const ids = user._id.toString();
+    if (id !== ids) {
+        return console.log("invalid");
+    }
     yield taskModel_1.default.findByIdAndDelete(id);
     return " Task Is Deleted Sucessfully";
 });
 exports.deleteTask = deleteTask;
-const getAllTask = () => __awaiter(void 0, void 0, void 0, function* () {
-    const all = yield taskModel_1.default.find().populate(["assignedTo", "assignedBy"]);
-    return all;
+const getAllTask = (object, query) => __awaiter(void 0, void 0, void 0, function* () {
+    const colmn = object.columns;
+    const num = object.pos;
+    let sort = {};
+    sort = { colmn: num };
+    if (colmn) {
+        sort = { [colmn]: num };
+    }
+    const { search, page, limit } = query;
+    const colmns = [
+        "subject",
+        "description",
+        "statusType",
+        "assignedTo",
+        "assignedBy",
+        "Date",
+    ];
+    const filterQuery = { $or: [] };
+    if (typeof search == "string") {
+        const searchString = search.trim();
+        const or = [];
+        colmns.forEach((col) => {
+            if (col === "Date") {
+                or.push({
+                    [col]: {
+                        $gte: new Date((0, moment_1.default)(searchString, "MM/DD/YYYY").format()),
+                        //   // $lt: new Date(moment(searchString, 'MM/DD/YYYY').format()),
+                    },
+                });
+            }
+            else {
+                or.push({
+                    [col]: { $regex: `.*${searchString}.*`, $options: "i" },
+                });
+            }
+        });
+        filterQuery.$or = or;
+    }
+    const all = taskModel_1.default.aggregate([
+        {
+            $lookup: {
+                from: "users",
+                localField: "assignedTo",
+                foreignField: "_id",
+                as: "assignedTo",
+            },
+        },
+        {
+            $lookup: {
+                from: "users",
+                localField: "assignedBy",
+                foreignField: "_id",
+                as: "assignedBy",
+            },
+        },
+        {
+            $unwind: {
+                path: "$assignedBy",
+            },
+        },
+        {
+            $unwind: {
+                path: "$assignedTo",
+            },
+        },
+        {
+            $project: {
+                subject: 1,
+                description: 1,
+                assignedTo: "$assignedTo.name",
+                assignedBy: "$assignedBy.name",
+                statusType: 1,
+                Date: 1,
+            },
+        },
+        {
+            $sort: sort,
+        },
+        {
+            $match: filterQuery,
+        },
+    ]);
+    const respose = {};
+    const options = {
+        page,
+        limit,
+    };
+    try {
+        const response = yield taskModel_1.default.aggregatePaginate(all, options);
+        return response;
+    }
+    catch (error) {
+        console.error("An error occurred:", error);
+    }
+    return respose;
 });
 exports.getAllTask = getAllTask;
 const getOneTask = (oneid) => __awaiter(void 0, void 0, void 0, function* () {
     const one = yield taskModel_1.default
         .findById(oneid)
-        .populate(["assignedTo", "assignedBy"]);
+        .populate("assignedTo", "name")
+        .populate("assignedBy", "name");
     return one;
 });
 exports.getOneTask = getOneTask;
-const getMyAllTask = (assign) => __awaiter(void 0, void 0, void 0, function* () {
-    const { assignedTo } = assign;
-    const myT = yield taskModel_1.default.find({ assignedTo });
-    return myT;
+const getMyAllTask = (object, assign) => __awaiter(void 0, void 0, void 0, function* () {
+    const assignedTo = assign.assignedTo;
+    const colmn = object.columns;
+    const num = object.pos;
+    let sort = {};
+    sort = { colmn: num };
+    if (colmn) {
+        sort = { [colmn]: num };
+    }
+    const all = yield taskModel_1.default.aggregate([
+        { $match: { assignedTo: new mongoose_1.default.Types.ObjectId(assignedTo) } },
+        {
+            $lookup: {
+                from: "users",
+                localField: "assignedTo",
+                foreignField: "_id",
+                as: "assignedTo",
+            },
+        },
+        {
+            $lookup: {
+                from: "users",
+                localField: "assignedBy",
+                foreignField: "_id",
+                as: "assignedBy",
+            },
+        },
+        {
+            $unwind: {
+                path: "$assignedBy",
+            },
+        },
+        {
+            $unwind: {
+                path: "$assignedTo",
+            },
+        }, {
+            $sort: sort
+        }
+    ]);
+    return all;
 });
 exports.getMyAllTask = getMyAllTask;

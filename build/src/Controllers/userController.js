@@ -24,7 +24,7 @@ const createUserController = (req, res, next) => __awaiter(void 0, void 0, void 
 exports.createUserController = createUserController;
 const updateUserController = (req, res, next) => {
     try {
-        const updateU = (0, userServices_1.updateUser)(req.params.id, req.body);
+        const updateU = (0, userServices_1.updateUser)(req.params.id, req.body, req.user);
         return res.send(updateU);
     }
     catch (error) {
@@ -35,7 +35,7 @@ const updateUserController = (req, res, next) => {
 exports.updateUserController = updateUserController;
 const deleteUsercontroller = (req, res, next) => {
     try {
-        const deletU = (0, userServices_1.deleteUser)(req.params.id);
+        const deletU = (0, userServices_1.deleteUser)(req.params.id, req.user);
         return res.send(deletU);
     }
     catch (error) {
@@ -46,7 +46,7 @@ const deleteUsercontroller = (req, res, next) => {
 exports.deleteUsercontroller = deleteUsercontroller;
 const getAllUserControlller = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const allUser = yield (0, userServices_1.getAllUser)();
+        const allUser = yield (0, userServices_1.getAllUser)(req.body, req.query);
         return res.send(allUser);
     }
     catch (error) {

@@ -1,6 +1,6 @@
-import { Request, Response, NextFunction } from "express";
+import { Request, Response } from "express";
 
-const errorLast = (req: Request, res:Response, next: NextFunction) =>{
+const errorLast = (req: Request, res: Response) => {
     res.status(500);
     res.send("Something Went Wrong")
 }

@@ -1,5 +1,6 @@
-import mongoose from "mongoose";
-import objs from "../interfaces/taskInterface";
+import mongoose, { AggregatePaginateModel } from "mongoose";
+import { objs } from "../interfaces/taskInterface";
+import mongoosePaginate from "mongoose-aggregate-paginate-v2";
 
 const taskSchema = new mongoose.Schema<objs>({
   subject: {
@@ -30,7 +31,8 @@ const taskSchema = new mongoose.Schema<objs>({
   },
 
   Date: { type: Date, default: Date.now },
-  
-});
 
-export default mongoose.model<objs>("task", taskSchema);
+});
+taskSchema.plugin(mongoosePaginate)
+
+export default mongoose.model<objs, AggregatePaginateModel<objs>>("task", taskSchema);

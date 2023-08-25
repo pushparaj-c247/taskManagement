@@ -15,29 +15,93 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.login = exports.getOneUser = exports.getAllUser = exports.deleteUser = exports.updateUser = exports.createUser = void 0;
 const userModel_1 = __importDefault(require("../Model/userModel"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
-const bcrypt_1 = __importDefault(require("bcrypt"));
 const express_validator_1 = require("express-validator");
 const createUser = (obj) => __awaiter(void 0, void 0, void 0, function* () {
-    obj.password = yield bcrypt_1.default.hash(obj.password, 10);
     yield userModel_1.default.create(obj);
     return "user created";
 });
 exports.createUser = createUser;
-const updateUser = (id, obj) => __awaiter(void 0, void 0, void 0, function* () {
+const updateUser = (id, obj, user) => __awaiter(void 0, void 0, void 0, function* () {
+    const ids = user._id.toString();
+    if (id !== ids) {
+        return console.log("invalid");
+    }
     yield userModel_1.default.findByIdAndUpdate(id, {
-        $set: { userName: obj.name, email: obj.email, password: obj.password },
+        userName: obj.name,
+        email: obj.email,
+        password: obj.password,
     });
     return " User Is Updated Sucessfully";
 });
 exports.updateUser = updateUser;
-const deleteUser = (id) => __awaiter(void 0, void 0, void 0, function* () {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const deleteUser = (id, user) => __awaiter(void 0, void 0, void 0, function* () {
+    const ids = user._id.toString();
+    if (id !== ids) {
+        return console.log("invalid");
+    }
     yield userModel_1.default.findByIdAndDelete(id);
     return "User Is Deleted Sucessfully";
 });
 exports.deleteUser = deleteUser;
-const getAllUser = () => __awaiter(void 0, void 0, void 0, function* () {
-    const all = yield userModel_1.default.find();
-    return all;
+const getAllUser = (object, query) => __awaiter(void 0, void 0, void 0, function* () {
+    const colmn = object.columns;
+    const num = object.pos;
+    let sort = {};
+    sort = { colmn: num };
+    if (colmn) {
+        sort = { [colmn]: num };
+    }
+    const { search, page, limit } = query;
+    const colmns = [
+        "name",
+        "email",
+        "password",
+        "role",
+    ];
+    const filterQuery = { $or: [] };
+    if (typeof search == "string") {
+        const searchString = search.trim();
+        const or = [];
+        colmns.forEach((col) => {
+            if (search) {
+                or.push({
+                    [col]: { $regex: `.*${searchString}.*`, $options: "i" },
+                });
+            }
+        });
+        filterQuery.$or = or;
+        console.log(or);
+    }
+    const all = userModel_1.default.aggregate([
+        {
+            $match: filterQuery,
+        },
+        {
+            $project: {
+                name: 1,
+                email: 1,
+                password: 1,
+                role: 1
+            },
+        },
+        {
+            $sort: sort
+        }
+    ]);
+    const respose = {};
+    const options = {
+        page,
+        limit,
+    };
+    try {
+        const response = yield userModel_1.default.aggregatePaginate(all, options);
+        return response;
+    }
+    catch (error) {
+        console.error("An error occurred:", error);
+    }
+    return respose;
 });
 exports.getAllUser = getAllUser;
 const getOneUser = (usid) => __awaiter(void 0, void 0, void 0, function* () {
@@ -59,7 +123,7 @@ const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             message: "invalid username & password",
         });
     }
-    const passwordMatch = bcrypt_1.default.compare(password, obj.password);
+    const passwordMatch = yield obj.validatePassword(password);
     if (!passwordMatch) {
         return res.status(400).json({ messge: "invalid username & password" });
     }

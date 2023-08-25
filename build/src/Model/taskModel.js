@@ -4,6 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importDefault(require("mongoose"));
+const mongoose_aggregate_paginate_v2_1 = __importDefault(require("mongoose-aggregate-paginate-v2"));
 const taskSchema = new mongoose_1.default.Schema({
     subject: {
         type: String,
@@ -31,4 +32,5 @@ const taskSchema = new mongoose_1.default.Schema({
     },
     Date: { type: Date, default: Date.now },
 });
+taskSchema.plugin(mongoose_aggregate_paginate_v2_1.default);
 exports.default = mongoose_1.default.model("task", taskSchema);

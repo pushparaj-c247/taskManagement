@@ -8,4 +8,11 @@ interface objs {
   statusType: string;
   Date: Date;
 }
-export default objs;
+interface queryObject {
+  [x: string]: { $regex: string; $options: string | number };
+}
+
+interface filterQuery {
+  $or: queryObject[];
+}
+export { objs, queryObject, filterQuery };
