@@ -1,11 +1,8 @@
 import express from "express";
-import userRoute from "./src/Routes/userRoute";
-import taskRoute from "./src/Routes/taskRoute";
+import { router, routers } from "./src/Routes/index";
 import connections from "./src/config/db";
 import { port } from "./src/config/env";
-import passport from "./src/config/passport";
-import errorHandler from "./src/middleware/errorHandler";
-import errorLast from './src/middleware/errorLast'
+import { passport, errorHandler, errorLast } from "./src/middleware/index"
 
 const app = express();
 
@@ -15,8 +12,8 @@ app.use(passport.initialize());
 
 connections();
 
-app.use("/user", userRoute);
-app.use("/task", taskRoute);
+app.use("/user", routers);
+app.use("/task", router);
 app.use(errorHandler);
 app.use(errorLast);
 

@@ -71,7 +71,6 @@ const getAllUser = (object, query) => __awaiter(void 0, void 0, void 0, function
             }
         });
         filterQuery.$or = or;
-        console.log(or);
     }
     const all = userModel_1.default.aggregate([
         {

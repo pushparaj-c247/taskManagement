@@ -62,7 +62,6 @@ const getAllUser = async (object: sort, query: ParsedQs) => {
       }
     });
     filterQuery.$or = or;
-    console.log(or)
 
   }
   const all = userSchema.aggregate([

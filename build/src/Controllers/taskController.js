@@ -24,7 +24,7 @@ const createTaskController = (req, res, next) => {
 exports.createTaskController = createTaskController;
 const updateTaskController = (req, res, next) => {
     try {
-        const updateT = (0, taskServices_1.updateTask)(req.params.id, req.body, req.user);
+        const updateT = (0, taskServices_1.updateTask)(req.params.id, req.body);
         return res.send(updateT);
     }
     catch (error) {
@@ -35,7 +35,7 @@ const updateTaskController = (req, res, next) => {
 exports.updateTaskController = updateTaskController;
 const deleteTaskcontroller = (req, res, next) => {
     try {
-        const deletT = (0, taskServices_1.deleteTask)(req.params.id, req.user);
+        const deletT = (0, taskServices_1.deleteTask)(req.params.id);
         return res.send(deletT);
     }
     catch (error) {
@@ -68,7 +68,7 @@ const getOneTaskControlller = (req, res, next) => __awaiter(void 0, void 0, void
 exports.getOneTaskControlller = getOneTaskControlller;
 const getMyAllTaskController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const task = yield (0, taskServices_1.getMyAllTask)(req.body, req.body);
+        const task = yield (0, taskServices_1.getMyAllTask)(req.body, req.body, req.user, req.body);
         return res.send(task);
     }
     catch (error) {

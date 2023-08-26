@@ -27,11 +27,7 @@ const createTask = (obj) => {
     return " Task Is Created Sucessfully";
 };
 exports.createTask = createTask;
-const updateTask = (id, obj, user) => __awaiter(void 0, void 0, void 0, function* () {
-    const ids = user._id.toString();
-    if (id !== ids) {
-        return console.log("invalid");
-    }
+const updateTask = (id, obj) => __awaiter(void 0, void 0, void 0, function* () {
     yield taskModel_1.default.findByIdAndUpdate(id, {
         $set: {
             subject: obj.subject,
@@ -44,11 +40,7 @@ const updateTask = (id, obj, user) => __awaiter(void 0, void 0, void 0, function
     return " Task Is Updated Sucessfully";
 });
 exports.updateTask = updateTask;
-const deleteTask = (id, user) => __awaiter(void 0, void 0, void 0, function* () {
-    const ids = user._id.toString();
-    if (id !== ids) {
-        return console.log("invalid");
-    }
+const deleteTask = (id) => __awaiter(void 0, void 0, void 0, function* () {
     yield taskModel_1.default.findByIdAndDelete(id);
     return " Task Is Deleted Sucessfully";
 });
@@ -158,7 +150,12 @@ const getOneTask = (oneid) => __awaiter(void 0, void 0, void 0, function* () {
     return one;
 });
 exports.getOneTask = getOneTask;
-const getMyAllTask = (object, assign) => __awaiter(void 0, void 0, void 0, function* () {
+const getMyAllTask = (object, assign, user, obj) => __awaiter(void 0, void 0, void 0, function* () {
+    const ids = user._id.toString();
+    const ass = obj.assignedTo.toString();
+    if (ass !== ids) {
+        return console.log("invalid");
+    }
     const assignedTo = assign.assignedTo;
     const colmn = object.columns;
     const num = object.pos;

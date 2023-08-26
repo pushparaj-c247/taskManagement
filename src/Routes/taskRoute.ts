@@ -14,7 +14,7 @@ const router = Router();
 router.post("/createTask", passport.authenticate("jwt", { session: false }),
   authorization("admin"), createTaskController);
 
-router.put("/updateTask/:id", updateTaskController);
+router.put("/updateTask/:id", passport.authenticate("jwt", { session: false }),authorization("admin"), updateTaskController);
 
 router.delete("/deleteTask/:id", passport.authenticate("jwt", { session: false }),
   authorization("admin"), deleteTaskcontroller);
@@ -29,6 +29,7 @@ router.get(
   getAllTaskControlller
 );
 
-router.get("/getMyAllTask", passport.authenticate("jwt", { session: false }), getMyAllTaskController);
+router.get("/getMyAllTask", passport.authenticate("jwt", { session: false }),
+authorization("admin"), getMyAllTaskController);
 
 export default router;

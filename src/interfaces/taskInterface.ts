@@ -7,6 +7,7 @@ interface objs {
   assignedBy: Types.ObjectId;
   statusType: string;
   Date: Date;
+  id: string
 }
 interface queryObject {
   [x: string]: { $regex: string; $options: string | number };
@@ -15,4 +16,6 @@ interface queryObject {
 interface filterQuery {
   $or: queryObject[];
 }
+
+
 export { objs, queryObject, filterQuery };

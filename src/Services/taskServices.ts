@@ -16,11 +16,7 @@ const createTask = (
 
   return " Task Is Created Sucessfully";
 };
-const updateTask = async (id: string, obj: objs, user: any) => {
-  const ids = user._id.toString();
-  if (id !== ids) {
-    return console.log("invalid")
-  }
+const updateTask = async (id: string, obj: objs,) => {
   await taskSchema.findByIdAndUpdate(id, {
     $set: {
       subject: obj.subject,
@@ -32,11 +28,8 @@ const updateTask = async (id: string, obj: objs, user: any) => {
   });
   return " Task Is Updated Sucessfully";
 };
-const deleteTask = async (id: string, user: any) => {
-  const ids = user._id.toString();
-  if (id !== ids) {
-    return console.log("invalid")
-  }
+const deleteTask = async (id: string) => {
+
   await taskSchema.findByIdAndDelete(id);
   return " Task Is Deleted Sucessfully";
 };
@@ -145,7 +138,12 @@ const getOneTask = async (oneid: string) => {
   return one;
 };
 
-const getMyAllTask = async (object: sort, assign: { assignedTo: string }) => {
+const getMyAllTask = async (object: sort, assign: { assignedTo: string }, user: any, obj: objs) => {
+  const ids = user._id.toString();
+  const ass = obj.assignedTo.toString();
+  if (ass !== ids) {
+    return console.log("invalid")
+  }
   const assignedTo = assign.assignedTo
   const colmn = object.columns;
   const num = object.pos;
