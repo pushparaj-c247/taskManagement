@@ -118,13 +118,13 @@ const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         email: email,
     });
     if (!obj) {
-        return res.status(400).json({
+        return res.status(401).json({
             message: "invalid username & password",
         });
     }
     const passwordMatch = yield obj.validatePassword(password);
     if (!passwordMatch) {
-        return res.status(400).json({ messge: "invalid username & password" });
+        return res.status(401).json({ messge: "invalid password" });
     }
     const token = jsonwebtoken_1.default.sign({ email: obj.email, name: obj.name }, "ABcdefg", {
         expiresIn: "1h",

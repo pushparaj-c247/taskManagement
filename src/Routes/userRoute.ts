@@ -13,7 +13,7 @@ import * as  expressValidator from "../middleware/expressValidator";
 
 const routers = Router();
 
-routers.post("/createUser", passport.authenticate('jwt', { session: false }), authorization("user"), createUserController);
+routers.post("/createUser", passport.authenticate('jwt', { session: false }), createUserController);
 
 routers.put("/updateUser/:id", passport.authenticate('jwt', { session: false }), authorization("user"), updateUserController);
 

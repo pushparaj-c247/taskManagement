@@ -13,36 +13,41 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getMyAllTask = exports.getOneTask = exports.getAllTask = exports.deleteTask = exports.updateTask = exports.createTask = void 0;
-const moment_1 = __importDefault(require("moment"));
 const taskModel_1 = __importDefault(require("../Model/taskModel"));
 const mongoose_1 = __importDefault(require("mongoose"));
-const createTask = (obj) => {
+const createTask = (obj, user) => {
     taskModel_1.default.create({
         subject: obj.subject,
         description: obj.description,
         assignedTo: obj.assignedTo,
-        assignedBy: obj.assignedBy,
+        assignedBy: user._id,
         statusType: obj.statusType,
     });
     return " Task Is Created Sucessfully";
 };
 exports.createTask = createTask;
-const updateTask = (id, obj) => __awaiter(void 0, void 0, void 0, function* () {
-    yield taskModel_1.default.findByIdAndUpdate(id, {
-        $set: {
-            subject: obj.subject,
-            description: obj.description,
-            assignedTo: obj.assignedTo,
-            assignedBy: obj.assignedBy,
-            statusType: obj.statusType,
-        },
-    });
-    return " Task Is Updated Sucessfully";
+const updateTask = (obj, user) => __awaiter(void 0, void 0, void 0, function* () {
+    const userId = user._id.toString();
+    if (userId == obj.assignedTo) {
+        yield taskModel_1.default.findOneAndUpdate({ _id: obj.id }, {
+            $set: {
+                subject: obj.subject,
+                description: obj.description,
+                assignedTo: obj.assignedTo,
+                assignedBy: obj.assignedBy,
+                statusType: obj.statusType,
+            },
+        });
+        return " Task Is Updated Sucessfully";
+    }
 });
 exports.updateTask = updateTask;
-const deleteTask = (id) => __awaiter(void 0, void 0, void 0, function* () {
-    yield taskModel_1.default.findByIdAndDelete(id);
-    return " Task Is Deleted Sucessfully";
+const deleteTask = (obj, user) => __awaiter(void 0, void 0, void 0, function* () {
+    const userId = user._id.toString();
+    if (userId == obj.assignedTo) {
+        yield taskModel_1.default.findByIdAndDelete({ _id: obj.id });
+        return " Task Is Deleted Sucessfully";
+    }
 });
 exports.deleteTask = deleteTask;
 const getAllTask = (object, query) => __awaiter(void 0, void 0, void 0, function* () {
@@ -68,12 +73,12 @@ const getAllTask = (object, query) => __awaiter(void 0, void 0, void 0, function
         const or = [];
         colmns.forEach((col) => {
             if (col === "Date") {
-                or.push({
-                    [col]: {
-                        $gte: new Date((0, moment_1.default)(searchString, "MM/DD/YYYY").format()),
-                        //   // $lt: new Date(moment(searchString, 'MM/DD/YYYY').format()),
-                    },
-                });
+                // or.push({
+                // [col]: {
+                // $gte: new Date(moment(searchString, "MM/DD/YYYY").format()),
+                //   // $lt: new Date(moment(searchString, 'MM/DD/YYYY').format()),
+                // },
+                // });
             }
             else {
                 or.push({
@@ -111,6 +116,9 @@ const getAllTask = (object, query) => __awaiter(void 0, void 0, void 0, function
             },
         },
         {
+            $match: filterQuery,
+        },
+        {
             $project: {
                 subject: 1,
                 description: 1,
@@ -122,10 +130,7 @@ const getAllTask = (object, query) => __awaiter(void 0, void 0, void 0, function
         },
         {
             $sort: sort,
-        },
-        {
-            $match: filterQuery,
-        },
+        }
     ]);
     const respose = {};
     const options = {

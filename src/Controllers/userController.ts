@@ -11,15 +11,15 @@ import {
 const createUserController = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  
 ) => {
   try {
     const createU = await createUser(req.body);
-    return res.send(createU);
+    return res.status(200).send(createU);
   }
   catch (error) {
-    console.log("Error In CreateUser");
-    next(error);
+    res.status(400).json({message: "user not created error"})
+
   }
 };
 
@@ -30,7 +30,7 @@ const updateUserController = (
 ) => {
   try {
     const updateU = updateUser(req.params.id, req.body, req.user);
-    return res.send(updateU);
+    return res.status(200).send(updateU);
   } catch (error) {
     console.log("Error In UpdateUser");
     next(error);

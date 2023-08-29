@@ -13,7 +13,7 @@ exports.getMyAllTaskController = exports.getOneTaskControlller = exports.getAllT
 const taskServices_1 = require("../Services/taskServices");
 const createTaskController = (req, res, next) => {
     try {
-        const createT = (0, taskServices_1.createTask)(req.body);
+        const createT = (0, taskServices_1.createTask)(req.body, req.user);
         return res.send(createT);
     }
     catch (error) {
@@ -24,7 +24,7 @@ const createTaskController = (req, res, next) => {
 exports.createTaskController = createTaskController;
 const updateTaskController = (req, res, next) => {
     try {
-        const updateT = (0, taskServices_1.updateTask)(req.params.id, req.body);
+        const updateT = (0, taskServices_1.updateTask)(req.body, req.user);
         return res.send(updateT);
     }
     catch (error) {
@@ -35,7 +35,7 @@ const updateTaskController = (req, res, next) => {
 exports.updateTaskController = updateTaskController;
 const deleteTaskcontroller = (req, res, next) => {
     try {
-        const deletT = (0, taskServices_1.deleteTask)(req.params.id);
+        const deletT = (0, taskServices_1.deleteTask)(req.body, req.user);
         return res.send(deletT);
     }
     catch (error) {

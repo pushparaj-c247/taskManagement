@@ -14,7 +14,7 @@ const createTaskController = (
   next: NextFunction
 ) => {
   try {
-    const createT = createTask(req.body);
+    const createT = createTask(req.body, req.user);
     return res.send(createT);
   } catch (error) {
     console.log("Error In CrateTask");
@@ -28,7 +28,7 @@ const updateTaskController = (
   next: NextFunction
 ) => {
   try {
-    const updateT = updateTask(req.params.id, req.body);
+    const updateT = updateTask(req.body, req.user);
     return res.send(updateT);
   } catch (error) {
     console.log("Error In UpdateTask");
@@ -42,7 +42,7 @@ const deleteTaskcontroller = (
   next: NextFunction
 ) => {
   try {
-    const deletT = deleteTask(req.params.id);
+    const deletT = deleteTask(req.body, req.user);
     return res.send(deletT);
   } catch (error) {
     console.log("Error In DeleteTask");

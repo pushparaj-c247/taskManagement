@@ -83,8 +83,7 @@ const getAllUser = async (object: sort, query: ParsedQs) => {
 
   ]);
   const respose: object = {};
-  const options: object
-    = {
+  const options: object = {
     page,
     limit,
   };
@@ -114,7 +113,7 @@ const login = async (req: Request, res: Response) => {
     email: email,
   });
   if (!obj) {
-    return res.status(400).json({
+    return res.status(401).json({
       message: "invalid username & password",
     });
   }
@@ -122,7 +121,7 @@ const login = async (req: Request, res: Response) => {
   const passwordMatch = await obj.validatePassword(password);
 
   if (!passwordMatch) {
-    return res.status(400).json({ messge: "invalid username & password" });
+    return res.status(401).json({ messge: "invalid password" });
   }
   const token = jwt.sign({ email: obj.email, name: obj.name }, "ABcdefg", {
     expiresIn: "1h",

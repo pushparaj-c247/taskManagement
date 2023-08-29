@@ -14,9 +14,9 @@ const router = Router();
 router.post("/createTask", passport.authenticate("jwt", { session: false }),
   authorization("admin"), createTaskController);
 
-router.put("/updateTask/:id", passport.authenticate("jwt", { session: false }),authorization("admin"), updateTaskController);
+router.put("/updateTask", passport.authenticate("jwt", { session: false }),authorization("admin"), updateTaskController);
 
-router.delete("/deleteTask/:id", passport.authenticate("jwt", { session: false }),
+router.delete("/deleteTask", passport.authenticate("jwt", { session: false }),
   authorization("admin"), deleteTaskcontroller);
 
 router.get("/getOneTask/:id", passport.authenticate("jwt", { session: false }),

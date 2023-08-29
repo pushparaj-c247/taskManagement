@@ -4,35 +4,45 @@ import { sort } from "../interfaces/userInterface";
 import { objs, queryObject, filterQuery } from "../interfaces/taskInterface"
 import mongoose from "mongoose";
 import { ParsedQs } from 'qs';
+
+
+
 const createTask = (
-  obj: objs) => {
+  obj: objs, user: any) => {
   taskSchema.create({
     subject: obj.subject,
     description: obj.description,
     assignedTo: obj.assignedTo,
-    assignedBy: obj.assignedBy,
+    assignedBy: user._id,
     statusType: obj.statusType,
   });
 
   return " Task Is Created Sucessfully";
 };
-const updateTask = async (id: string, obj: objs,) => {
-  await taskSchema.findByIdAndUpdate(id, {
-    $set: {
-      subject: obj.subject,
-      description: obj.description,
-      assignedTo: obj.assignedTo,
-      assignedBy: obj.assignedBy,
-      statusType: obj.statusType,
-    },
-  });
-  return " Task Is Updated Sucessfully";
-};
-const deleteTask = async (id: string) => {
+const updateTask = async (obj: objs, user: any) => {
+  const userId = user._id.toString()
 
-  await taskSchema.findByIdAndDelete(id);
-  return " Task Is Deleted Sucessfully";
-};
+  if (userId == obj.assignedTo) {
+    await taskSchema.findOneAndUpdate({ _id: obj.id }, {
+      $set: {
+        subject: obj.subject,
+        description: obj.description,
+        assignedTo: obj.assignedTo,
+        assignedBy: obj.assignedBy,
+        statusType: obj.statusType,
+      },
+    });
+    return " Task Is Updated Sucessfully";
+  }
+}
+
+const deleteTask = async (obj: objs, user: any) => {
+  const userId = user._id.toString()
+  if (userId == obj.assignedTo) {
+    await taskSchema.findByIdAndDelete({ _id: obj.id });
+    return " Task Is Deleted Sucessfully";
+  }
+}
 const getAllTask = async (object: sort, query: ParsedQs) => {
   const colmn = object.columns;
   const num = object.pos;
@@ -56,12 +66,12 @@ const getAllTask = async (object: sort, query: ParsedQs) => {
     const or: queryObject[] = [];
     colmns.forEach((col) => {
       if (col === "Date") {
-        or.push({
-          [col]: {
-            $gte: new Date(moment(searchString, "MM/DD/YYYY").format()),
+        // or.push({
+          // [col]: {
+            // $gte: new Date(moment(searchString, "MM/DD/YYYY").format()),
             //   // $lt: new Date(moment(searchString, 'MM/DD/YYYY').format()),
-          },
-        });
+          // },
+        // });
       } else {
         or.push({
           [col]: { $regex: `.*${searchString}.*`, $options: "i" },
@@ -71,6 +81,7 @@ const getAllTask = async (object: sort, query: ParsedQs) => {
     filterQuery.$or = or;
   }
   const all = taskSchema.aggregate([
+
     {
       $lookup: {
         from: "users",
@@ -97,7 +108,9 @@ const getAllTask = async (object: sort, query: ParsedQs) => {
         path: "$assignedTo",
       },
     },
-
+    {
+      $match: filterQuery,
+    },
     {
       $project: {
         subject: 1,
@@ -110,10 +123,7 @@ const getAllTask = async (object: sort, query: ParsedQs) => {
     },
     {
       $sort: sort,
-    },
-    {
-      $match: filterQuery,
-    },
+    }
   ]);
   const respose: object = {};
   const options: object = {
