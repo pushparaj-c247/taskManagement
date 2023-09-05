@@ -11,42 +11,45 @@ import {
 const createUserController = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  
 ) => {
   try {
     const createU = await createUser(req.body);
-    return res.send(createU);
+    return res.status(200).send(createU);
   }
   catch (error) {
-    console.log("Error In CreateUser");
-    next(error);
+    console.log(error);
+    
+
   }
 };
 
 const updateUserController = (
   req: Request,
   res: Response,
-  next: NextFunction
+
 ) => {
   try {
-    const updateU = updateUser(req.params.id, req.body, req.user);
-    return res.send(updateU);
+    const id :string =  req.user!._id
+     updateUser(req.body,id);
+    return res.status(200).send("User Is Updated Successfully")
   } catch (error) {
-    console.log("Error In UpdateUser");
-    next(error);
+    return res.status(401)
+    
   }
 };
 
-const deleteUsercontroller = (
+const deleteUsercontroller = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
   try {
-    const deletU = deleteUser(req.params.id, req.user);
-    return res.send(deletU);
+    const id :string =  req.user!._id
+    await deleteUser(id );
+    return res.send("User Is Deleted Sucessfully")
   } catch (error) {
-    console.log("Error In DeleteUser");
+    res.send("Error In DeleteUser");
     next(error);
   }
 };

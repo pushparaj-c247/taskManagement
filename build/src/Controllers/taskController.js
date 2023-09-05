@@ -13,29 +13,32 @@ exports.getMyAllTaskController = exports.getOneTaskControlller = exports.getAllT
 const taskServices_1 = require("../Services/taskServices");
 const createTaskController = (req, res, next) => {
     try {
-        const createT = (0, taskServices_1.createTask)(req.body);
+        const id = req.user._id;
+        const createT = (0, taskServices_1.createTask)(req.body, id);
         return res.send(createT);
     }
-    catch (error) {
-        console.log("Error In CrateTask");
-        next(error);
+    catch (err) {
+        res.status(401).json("Error In CrateTask");
+        next(err);
     }
 };
 exports.createTaskController = createTaskController;
 const updateTaskController = (req, res, next) => {
     try {
-        const updateT = (0, taskServices_1.updateTask)(req.params.id, req.body, req.user);
+        const id = req.user._id;
+        const updateT = (0, taskServices_1.updateTask)(req.body, id);
         return res.send(updateT);
     }
-    catch (error) {
+    catch (err) {
         console.log("Error In UpdateTask");
-        next(error);
+        next(err);
     }
 };
 exports.updateTaskController = updateTaskController;
 const deleteTaskcontroller = (req, res, next) => {
     try {
-        const deletT = (0, taskServices_1.deleteTask)(req.params.id, req.user);
+        const id = req.user._id;
+        const deletT = (0, taskServices_1.deleteTask)(req.body, id);
         return res.send(deletT);
     }
     catch (error) {
@@ -47,6 +50,7 @@ exports.deleteTaskcontroller = deleteTaskcontroller;
 const getAllTaskControlller = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const alltask = yield (0, taskServices_1.getAllTask)(req.body, req.query);
+        console.log(alltask);
         return res.send(alltask);
     }
     catch (error) {
@@ -68,7 +72,8 @@ const getOneTaskControlller = (req, res, next) => __awaiter(void 0, void 0, void
 exports.getOneTaskControlller = getOneTaskControlller;
 const getMyAllTaskController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const task = yield (0, taskServices_1.getMyAllTask)(req.body, req.body);
+        const id = req.user._id;
+        const task = yield (0, taskServices_1.getMyAllTask)(req.body, req.body, id, req.body);
         return res.send(task);
     }
     catch (error) {

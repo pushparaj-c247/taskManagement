@@ -16,31 +16,25 @@ exports.login = exports.getOneUser = exports.getAllUser = exports.deleteUser = e
 const userModel_1 = __importDefault(require("../Model/userModel"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const express_validator_1 = require("express-validator");
+const ioredis_1 = __importDefault(require("ioredis"));
 const createUser = (obj) => __awaiter(void 0, void 0, void 0, function* () {
-    yield userModel_1.default.create(obj);
-    return "user created";
+    const create = yield userModel_1.default.create(obj);
+    return create;
 });
 exports.createUser = createUser;
-const updateUser = (id, obj, user) => __awaiter(void 0, void 0, void 0, function* () {
-    const ids = user._id.toString();
-    if (id !== ids) {
-        return console.log("invalid");
-    }
-    yield userModel_1.default.findByIdAndUpdate(id, {
+const updateUser = (obj, _id) => __awaiter(void 0, void 0, void 0, function* () {
+    const ids = _id;
+    yield userModel_1.default.findByIdAndUpdate(ids, {
         userName: obj.name,
         email: obj.email,
         password: obj.password,
     });
-    return " User Is Updated Sucessfully";
+    return "User Is Updated Successfully";
 });
 exports.updateUser = updateUser;
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const deleteUser = (id, user) => __awaiter(void 0, void 0, void 0, function* () {
-    const ids = user._id.toString();
-    if (id !== ids) {
-        return console.log("invalid");
-    }
-    yield userModel_1.default.findByIdAndDelete(id);
+const deleteUser = (_id) => __awaiter(void 0, void 0, void 0, function* () {
+    const ids = _id;
+    yield userModel_1.default.findByIdAndDelete(ids);
     return "User Is Deleted Sucessfully";
 });
 exports.deleteUser = deleteUser;
@@ -71,37 +65,37 @@ const getAllUser = (object, query) => __awaiter(void 0, void 0, void 0, function
             }
         });
         filterQuery.$or = or;
-        console.log(or);
     }
-    const all = userModel_1.default.aggregate([
-        {
-            $match: filterQuery,
-        },
-        {
-            $project: {
-                name: 1,
-                email: 1,
-                password: 1,
-                role: 1
+    const redisclient = new ioredis_1.default();
+    const cachedData = yield redisclient.get(`allUser?col${search}?page=${page}?limit${limit}`);
+    if (cachedData) {
+        return JSON.parse(cachedData);
+    }
+    else {
+        const all = userModel_1.default.aggregate([
+            {
+                $match: filterQuery,
             },
-        },
-        {
-            $sort: sort
-        }
-    ]);
-    const respose = {};
-    const options = {
-        page,
-        limit,
-    };
-    try {
+            {
+                $project: {
+                    name: 1,
+                    email: 1,
+                    password: 1,
+                    role: 1
+                },
+            },
+            {
+                $sort: sort
+            }
+        ]);
+        const options = {
+            page,
+            limit,
+        };
         const response = yield userModel_1.default.aggregatePaginate(all, options);
+        redisclient.set(`allUser?col${search}?page=${page}?limit${limit}`, JSON.stringify(response));
         return response;
     }
-    catch (error) {
-        console.error("An error occurred:", error);
-    }
-    return respose;
 });
 exports.getAllUser = getAllUser;
 const getOneUser = (usid) => __awaiter(void 0, void 0, void 0, function* () {
@@ -119,13 +113,20 @@ const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         email: email,
     });
     if (!obj) {
-        return res.status(400).json({
+        return res.status(401).json({
             message: "invalid username & password",
         });
     }
+    // Password validation using regex pattern
+    // const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/;
+    // if (!passwordPattern.test(password)) {
+    //   return res.status(400).json({
+    //     message: "Invalid password format",
+    //   });
+    // }
     const passwordMatch = yield obj.validatePassword(password);
     if (!passwordMatch) {
-        return res.status(400).json({ messge: "invalid username & password" });
+        return res.status(401).json({ message: "invalid password" });
     }
     const token = jsonwebtoken_1.default.sign({ email: obj.email, name: obj.name }, "ABcdefg", {
         expiresIn: "1h",

@@ -5,6 +5,7 @@ import mongoosePaginate from "mongoose-aggregate-paginate-v2";
 
 
 const UserSchema = new mongoose.Schema<obj>({
+
   name: {
     type: String,
     required: true,

@@ -11,38 +11,38 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.loginController = exports.getOneUserControlller = exports.getAllUserControlller = exports.deleteUsercontroller = exports.updateUserController = exports.createUserController = void 0;
 const userServices_1 = require("../Services/userServices");
-const createUserController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+const createUserController = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const createU = yield (0, userServices_1.createUser)(req.body);
-        return res.send(createU);
+        return res.status(200).send(createU);
     }
     catch (error) {
-        console.log("Error In CreateUser");
-        next(error);
+        console.log(error);
     }
 });
 exports.createUserController = createUserController;
-const updateUserController = (req, res, next) => {
+const updateUserController = (req, res) => {
     try {
-        const updateU = (0, userServices_1.updateUser)(req.params.id, req.body, req.user);
-        return res.send(updateU);
+        const id = req.user._id;
+        (0, userServices_1.updateUser)(req.body, id);
+        return res.status(200).send("User Is Updated Successfully");
     }
     catch (error) {
-        console.log("Error In UpdateUser");
-        next(error);
+        return res.status(401);
     }
 };
 exports.updateUserController = updateUserController;
-const deleteUsercontroller = (req, res, next) => {
+const deleteUsercontroller = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const deletU = (0, userServices_1.deleteUser)(req.params.id, req.user);
-        return res.send(deletU);
+        const id = req.user._id;
+        yield (0, userServices_1.deleteUser)(id);
+        return res.send("User Is Deleted Sucessfully");
     }
     catch (error) {
-        console.log("Error In DeleteUser");
+        res.send("Error In DeleteUser");
         next(error);
     }
-};
+});
 exports.deleteUsercontroller = deleteUsercontroller;
 const getAllUserControlller = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {

@@ -13,44 +13,45 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getMyAllTask = exports.getOneTask = exports.getAllTask = exports.deleteTask = exports.updateTask = exports.createTask = void 0;
-const moment_1 = __importDefault(require("moment"));
 const taskModel_1 = __importDefault(require("../Model/taskModel"));
 const mongoose_1 = __importDefault(require("mongoose"));
-const createTask = (obj) => {
-    taskModel_1.default.create({
-        subject: obj.subject,
-        description: obj.description,
-        assignedTo: obj.assignedTo,
-        assignedBy: obj.assignedBy,
-        statusType: obj.statusType,
-    });
-    return " Task Is Created Sucessfully";
-};
-exports.createTask = createTask;
-const updateTask = (id, obj, user) => __awaiter(void 0, void 0, void 0, function* () {
-    const ids = user._id.toString();
-    if (id !== ids) {
-        return console.log("invalid");
-    }
-    yield taskModel_1.default.findByIdAndUpdate(id, {
-        $set: {
+const ioredis_1 = __importDefault(require("ioredis"));
+const createTask = (obj, id) => {
+    try {
+        const result = taskModel_1.default.create({
             subject: obj.subject,
             description: obj.description,
             assignedTo: obj.assignedTo,
-            assignedBy: obj.assignedBy,
+            assignedBy: id,
             statusType: obj.statusType,
-        },
-    });
-    return " Task Is Updated Sucessfully";
+        });
+        return result;
+    }
+    catch (err) {
+        return err;
+    }
+};
+exports.createTask = createTask;
+const updateTask = (obj, id) => __awaiter(void 0, void 0, void 0, function* () {
+    if (id == obj.assignedTo.toString()) {
+        yield taskModel_1.default.findOneAndUpdate({ _id: obj.id }, {
+            $set: {
+                subject: obj.subject,
+                description: obj.description,
+                assignedTo: obj.assignedTo,
+                assignedBy: obj.assignedBy,
+                statusType: obj.statusType,
+            },
+        });
+        return "Task Is Updated Sucessfully";
+    }
 });
 exports.updateTask = updateTask;
-const deleteTask = (id, user) => __awaiter(void 0, void 0, void 0, function* () {
-    const ids = user._id.toString();
-    if (id !== ids) {
-        return console.log("invalid");
+const deleteTask = (obj, id) => __awaiter(void 0, void 0, void 0, function* () {
+    if (id == obj.assignedTo.toString()) {
+        yield taskModel_1.default.findByIdAndDelete({ _id: obj.id });
+        return "Task Is Deleted Sucessfully";
     }
-    yield taskModel_1.default.findByIdAndDelete(id);
-    return " Task Is Deleted Sucessfully";
 });
 exports.deleteTask = deleteTask;
 const getAllTask = (object, query) => __awaiter(void 0, void 0, void 0, function* () {
@@ -76,12 +77,12 @@ const getAllTask = (object, query) => __awaiter(void 0, void 0, void 0, function
         const or = [];
         colmns.forEach((col) => {
             if (col === "Date") {
-                or.push({
-                    [col]: {
-                        $gte: new Date((0, moment_1.default)(searchString, "MM/DD/YYYY").format()),
-                        //   // $lt: new Date(moment(searchString, 'MM/DD/YYYY').format()),
-                    },
-                });
+                // or.push({
+                // [col]: {
+                // $gte: new Date(moment(searchString, "MM/DD/YYYY").format()),
+                //   // $lt: new Date(moment(searchString, 'MM/DD/YYYY').format()),
+                // },
+                // });
             }
             else {
                 or.push({
@@ -91,63 +92,64 @@ const getAllTask = (object, query) => __awaiter(void 0, void 0, void 0, function
         });
         filterQuery.$or = or;
     }
-    const all = taskModel_1.default.aggregate([
-        {
-            $lookup: {
-                from: "users",
-                localField: "assignedTo",
-                foreignField: "_id",
-                as: "assignedTo",
+    const redisclient = new ioredis_1.default();
+    const cachedData = yield redisclient.get(`allTask?col${search}?page=${page}?limit${limit}`);
+    if (cachedData) {
+        return JSON.parse(cachedData);
+    }
+    else {
+        const all = taskModel_1.default.aggregate([
+            {
+                $lookup: {
+                    from: "users",
+                    localField: "assignedTo",
+                    foreignField: "_id",
+                    as: "assignedTo",
+                },
             },
-        },
-        {
-            $lookup: {
-                from: "users",
-                localField: "assignedBy",
-                foreignField: "_id",
-                as: "assignedBy",
+            {
+                $lookup: {
+                    from: "users",
+                    localField: "assignedBy",
+                    foreignField: "_id",
+                    as: "assignedBy",
+                },
             },
-        },
-        {
-            $unwind: {
-                path: "$assignedBy",
+            {
+                $unwind: {
+                    path: "$assignedBy",
+                },
             },
-        },
-        {
-            $unwind: {
-                path: "$assignedTo",
+            {
+                $unwind: {
+                    path: "$assignedTo",
+                },
             },
-        },
-        {
-            $project: {
-                subject: 1,
-                description: 1,
-                assignedTo: "$assignedTo.name",
-                assignedBy: "$assignedBy.name",
-                statusType: 1,
-                Date: 1,
+            {
+                $match: filterQuery,
             },
-        },
-        {
-            $sort: sort,
-        },
-        {
-            $match: filterQuery,
-        },
-    ]);
-    const respose = {};
-    const options = {
-        page,
-        limit,
-    };
-    try {
+            {
+                $project: {
+                    subject: 1,
+                    description: 1,
+                    assignedTo: "$assignedTo.name",
+                    assignedBy: "$assignedBy.name",
+                    statusType: 1,
+                    Date: 1,
+                },
+            },
+            {
+                $sort: sort,
+            }
+        ]);
+        const options = {
+            page,
+            limit,
+        };
         const response = yield taskModel_1.default.aggregatePaginate(all, options);
+        redisclient.set(`allTask?col${search}?page=${page}?limit${limit}`, JSON.stringify(response));
         return response;
     }
-    catch (error) {
-        console.error("An error occurred:", error);
-    }
-    return respose;
 });
 exports.getAllTask = getAllTask;
 const getOneTask = (oneid) => __awaiter(void 0, void 0, void 0, function* () {
@@ -158,7 +160,10 @@ const getOneTask = (oneid) => __awaiter(void 0, void 0, void 0, function* () {
     return one;
 });
 exports.getOneTask = getOneTask;
-const getMyAllTask = (object, assign) => __awaiter(void 0, void 0, void 0, function* () {
+const getMyAllTask = (object, assign, id, obj) => __awaiter(void 0, void 0, void 0, function* () {
+    if (obj.assignedTo.toString() !== id) {
+        return console.log("invalid");
+    }
     const assignedTo = assign.assignedTo;
     const colmn = object.columns;
     const num = object.pos;

@@ -14,11 +14,12 @@ const createTaskController = (
   next: NextFunction
 ) => {
   try {
-    const createT = createTask(req.body);
+    const id:string  =  req.user!._id
+    const createT = createTask(req.body, id);
     return res.send(createT);
-  } catch (error) {
-    console.log("Error In CrateTask");
-    next(error);
+  } catch (err) {
+    res.status(401).json("Error In CrateTask")
+    next(err)
   }
 };
 
@@ -28,11 +29,12 @@ const updateTaskController = (
   next: NextFunction
 ) => {
   try {
-    const updateT = updateTask(req.params.id, req.body, req.user);
+    const id: string  =  req.user!._id
+    const updateT = updateTask(req.body, id);
     return res.send(updateT);
-  } catch (error) {
+  } catch (err) {
     console.log("Error In UpdateTask");
-    next(error);
+    next(err);
   }
 };
 
@@ -42,7 +44,8 @@ const deleteTaskcontroller = (
   next: NextFunction
 ) => {
   try {
-    const deletT = deleteTask(req.params.id, req.user);
+    const id: string  =  req.user!._id
+    const deletT = deleteTask(req.body, id);
     return res.send(deletT);
   } catch (error) {
     console.log("Error In DeleteTask");
@@ -55,8 +58,8 @@ const getAllTaskControlller = async (
   next: NextFunction
 ) => {
   try {
-
     const alltask = await getAllTask(req.body, req.query);
+    console.log(alltask)
     return res.send(alltask);
   } catch (error) {
     console.log("Error In GetAllTask");
@@ -82,7 +85,8 @@ const getMyAllTaskController = async (
   next: NextFunction
 ) => {
   try {
-    const task = await getMyAllTask(req.body, req.body);
+    const id: string  =  req.user!._id
+    const task = await getMyAllTask(req.body, req.body,id, req.body);
     return res.send(task);
   } catch (error) {
     console.log("Error In GetMyAllTask");

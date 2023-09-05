@@ -5,32 +5,27 @@ import jwt from "jsonwebtoken";
 import { validationResult } from "express-validator";
 import { filterQuery, queryObject } from "../interfaces/taskInterface";
 import { ParsedQs } from "qs"
+import Redis from "ioredis"
+
 
 
 const createUser = async (obj: obj) => {
-  await userSchema.create(obj);
-  return "user created";
+  const create = await userSchema.create(obj);
+  return create;
 };
 
-const updateUser = async (id: string, obj: obj, user: any) => {
-  const ids = user._id.toString();
-  if (id !== ids) {
-    return console.log("invalid")
-  }
-  await userSchema.findByIdAndUpdate(id, {
+const updateUser = async (obj: obj, _id: string) => {
+  const ids = _id
+  await userSchema.findByIdAndUpdate(ids, {
     userName: obj.name,
     email: obj.email,
     password: obj.password,
   });
-  return " User Is Updated Sucessfully";
+  return "User Is Updated Successfully";
 };
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const deleteUser = async (id: string, user: any) => {
-  const ids = user._id.toString();
-  if (id !== ids) {
-    return console.log("invalid")
-  }
-  await userSchema.findByIdAndDelete(id);
+const deleteUser = async (_id: string) => {
+  const ids = _id
+  await userSchema.findByIdAndDelete(ids);
   return "User Is Deleted Sucessfully";
 };
 
@@ -62,9 +57,14 @@ const getAllUser = async (object: sort, query: ParsedQs) => {
       }
     });
     filterQuery.$or = or;
-    console.log(or)
 
   }
+
+  const redisclient = new Redis();
+  const cachedData = await redisclient.get(`allUser?col${search}?page=${page}?limit${limit}`);
+  if (cachedData)
+   {return JSON.parse(cachedData) }
+   else {
   const all = userSchema.aggregate([
     {
       $match: filterQuery,
@@ -83,22 +83,20 @@ const getAllUser = async (object: sort, query: ParsedQs) => {
 
 
   ]);
-  const respose: object = {};
-  const options: object
-    = {
+
+  const options: object = {
     page,
     limit,
   };
 
-  try {
-    const response = await userSchema.aggregatePaginate(all, options);
-    return response;
-  } catch (error) {
-    console.error("An error occurred:", error);
-  }
-  return respose;
+  const response = await userSchema.aggregatePaginate(all, options);
+  redisclient.set(`allUser?col${search}?page=${page}?limit${limit}`,
+  JSON.stringify(response))
+   return response;
+ 
 
-};
+}
+}
 
 const getOneUser = async (usid: string) => {
   const one = await userSchema.findById(usid);
@@ -115,20 +113,30 @@ const login = async (req: Request, res: Response) => {
     email: email,
   });
   if (!obj) {
-    return res.status(400).json({
+    return res.status(401).json({
       message: "invalid username & password",
     });
   }
 
+  // Password validation using regex pattern
+  // const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/;
+  // if (!passwordPattern.test(password)) {
+  //   return res.status(400).json({
+  //     message: "Invalid password format",
+  //   });
+  // }
+
   const passwordMatch = await obj.validatePassword(password);
 
   if (!passwordMatch) {
-    return res.status(400).json({ messge: "invalid username & password" });
+    return res.status(401).json({ message: "invalid password" });
   }
+
   const token = jwt.sign({ email: obj.email, name: obj.name }, "ABcdefg", {
     expiresIn: "1h",
   });
   res.json({ message: "logged in successfully", token });
 };
+
 
 export { createUser, updateUser, deleteUser, getAllUser, getOneUser, login };
