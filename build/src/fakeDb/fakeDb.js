@@ -12,11 +12,17 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.populate = void 0;
+exports.taskPopulate = exports.populate = void 0;
 const userModel_1 = __importDefault(require("../Model/userModel"));
+const taskModel_1 = __importDefault(require("../Model/taskModel"));
 const data_1 = __importDefault(require("./data"));
 const populate = () => __awaiter(void 0, void 0, void 0, function* () {
     yield userModel_1.default.deleteMany({});
-    yield userModel_1.default.create(data_1.default.users);
+    yield userModel_1.default.create(data_1.default.data.users);
 });
 exports.populate = populate;
+const taskPopulate = () => __awaiter(void 0, void 0, void 0, function* () {
+    yield taskModel_1.default.deleteMany({});
+    yield taskModel_1.default.create(data_1.default.task.tasks);
+});
+exports.taskPopulate = taskPopulate;

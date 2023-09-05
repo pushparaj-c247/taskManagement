@@ -1,28 +1,31 @@
-import moment from "moment";
 import taskSchema from "../Model/taskModel";
 import { sort } from "../interfaces/userInterface";
 import { objs, queryObject, filterQuery } from "../interfaces/taskInterface"
 import mongoose from "mongoose";
 import { ParsedQs } from 'qs';
-
+import redis from "ioredis"
 
 
 const createTask = (
-  obj: objs, user: any) => {
-  taskSchema.create({
-    subject: obj.subject,
-    description: obj.description,
-    assignedTo: obj.assignedTo,
-    assignedBy: user._id,
-    statusType: obj.statusType,
-  });
+  obj: objs, id: string) => {
 
-  return " Task Is Created Sucessfully";
+  try {
+    const result = taskSchema.create({
+      subject: obj.subject,
+      description: obj.description,
+      assignedTo: obj.assignedTo,
+      assignedBy: id,
+      statusType: obj.statusType,
+    });
+
+    return result
+  }
+  catch (err) {
+    return err
+  }
 };
-const updateTask = async (obj: objs, user: any) => {
-  const userId = user._id.toString()
-
-  if (userId == obj.assignedTo) {
+const updateTask = async (obj: objs, id: string) => {
+  if (id == obj.assignedTo.toString()) {
     await taskSchema.findOneAndUpdate({ _id: obj.id }, {
       $set: {
         subject: obj.subject,
@@ -32,15 +35,14 @@ const updateTask = async (obj: objs, user: any) => {
         statusType: obj.statusType,
       },
     });
-    return " Task Is Updated Sucessfully";
+    return "Task Is Updated Sucessfully";
   }
 }
 
-const deleteTask = async (obj: objs, user: any) => {
-  const userId = user._id.toString()
-  if (userId == obj.assignedTo) {
+const deleteTask = async (obj: objs, id: string) => {
+  if (id == obj.assignedTo.toString()) {
     await taskSchema.findByIdAndDelete({ _id: obj.id });
-    return " Task Is Deleted Sucessfully";
+    return "Task Is Deleted Sucessfully";
   }
 }
 const getAllTask = async (object: sort, query: ParsedQs) => {
@@ -67,10 +69,10 @@ const getAllTask = async (object: sort, query: ParsedQs) => {
     colmns.forEach((col) => {
       if (col === "Date") {
         // or.push({
-          // [col]: {
-            // $gte: new Date(moment(searchString, "MM/DD/YYYY").format()),
-            //   // $lt: new Date(moment(searchString, 'MM/DD/YYYY').format()),
-          // },
+        // [col]: {
+        // $gte: new Date(moment(searchString, "MM/DD/YYYY").format()),
+        //   // $lt: new Date(moment(searchString, 'MM/DD/YYYY').format()),
+        // },
         // });
       } else {
         or.push({
@@ -79,7 +81,13 @@ const getAllTask = async (object: sort, query: ParsedQs) => {
       }
     });
     filterQuery.$or = or;
+
   }
+  const redisclient = new redis();
+  const cachedData = await redisclient.get(`allTask?col${search}?page=${page}?limit${limit}`);
+  if (cachedData)
+   {return JSON.parse(cachedData) }
+   else {
   const all = taskSchema.aggregate([
 
     {
@@ -124,22 +132,25 @@ const getAllTask = async (object: sort, query: ParsedQs) => {
     {
       $sort: sort,
     }
-  ]);
-  const respose: object = {};
+  ])
   const options: object = {
     page,
     limit,
   };
 
-  try {
-    const response = await taskSchema.aggregatePaginate(all, options);
-    return response;
-  } catch (error) {
-    console.error("An error occurred:", error);
-  }
-  return respose;
-};
 
+  const response = await taskSchema.aggregatePaginate(all, options);
+
+
+  redisclient.set(`allTask?col${search}?page=${page}?limit${limit}`,
+  JSON.stringify(response))
+   return response;
+ 
+
+
+
+}
+}
 const getOneTask = async (oneid: string) => {
   const one = await taskSchema
     .findById(oneid)
@@ -148,10 +159,8 @@ const getOneTask = async (oneid: string) => {
   return one;
 };
 
-const getMyAllTask = async (object: sort, assign: { assignedTo: string }, user: any, obj: objs) => {
-  const ids = user._id.toString();
-  const ass = obj.assignedTo.toString();
-  if (ass !== ids) {
+const getMyAllTask = async (object: sort, assign: { assignedTo: string }, id: string, obj: objs) => {
+  if (obj.assignedTo.toString() !== id) {
     return console.log("invalid")
   }
   const assignedTo = assign.assignedTo

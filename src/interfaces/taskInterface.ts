@@ -1,6 +1,8 @@
+
 import Types from "mongoose";
 
 interface objs {
+  _id:  Types.ObjectId;
   subject: string;
   description: string;
   assignedTo: Types.ObjectId;

@@ -18,7 +18,8 @@ const createUserController = async (
     return res.status(200).send(createU);
   }
   catch (error) {
-    res.status(400).json({message: "user not created error"})
+    console.log(error);
+    
 
   }
 };
@@ -26,27 +27,29 @@ const createUserController = async (
 const updateUserController = (
   req: Request,
   res: Response,
-  next: NextFunction
+
 ) => {
   try {
-    const updateU = updateUser(req.params.id, req.body, req.user);
-    return res.status(200).send(updateU);
+    const id :string =  req.user!._id
+     updateUser(req.body,id);
+    return res.status(200).send("User Is Updated Successfully")
   } catch (error) {
-    console.log("Error In UpdateUser");
-    next(error);
+    return res.status(401)
+    
   }
 };
 
-const deleteUsercontroller = (
+const deleteUsercontroller = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
   try {
-    const deletU = deleteUser(req.params.id, req.user);
-    return res.send(deletU);
+    const id :string =  req.user!._id
+    await deleteUser(id );
+    return res.send("User Is Deleted Sucessfully")
   } catch (error) {
-    console.log("Error In DeleteUser");
+    res.send("Error In DeleteUser");
     next(error);
   }
 };

@@ -13,11 +13,11 @@ import * as  expressValidator from "../middleware/expressValidator";
 
 const routers = Router();
 
-routers.post("/createUser", passport.authenticate('jwt', { session: false }), createUserController);
+routers.post("/createUser", createUserController);
 
-routers.put("/updateUser/:id", passport.authenticate('jwt', { session: false }), authorization("user"), updateUserController);
+routers.put("/updateUser", passport.authenticate('jwt', { session: false }), updateUserController);
 
-routers.delete("/deleteUser/:id", passport.authenticate('jwt', { session: false }), authorization("user"), deleteUsercontroller);
+routers.delete("/deleteUser", passport.authenticate('jwt', { session: false }), deleteUsercontroller);
 
 routers.get("/getAllUser", passport.authenticate('jwt', { session: false }), authorization("admin"), getAllUserControlller);
 
