@@ -96,7 +96,7 @@ describe('Delete User', () => {
   it("should delete a user", (done: any) => {
     request.agent(app)
       .delete(`/${version}/user/deleteUser`)
-      .set('Authorization', `Bearer ${token}`) // Set the authorization token
+      .set('Authorization', `Bearer ${token}`) 
       .expect(200)
       .then((res) => {
         expect(res.text).to.equal("User Is Deleted Sucessfully");

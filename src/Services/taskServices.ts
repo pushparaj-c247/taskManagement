@@ -80,7 +80,7 @@ const getAllTask = async (object: sort, query: ParsedQs) => {
         });
       }
     });
-    filterQuery.$or = or;
+    // filterQuery.$or = or;
 
   }
   const redisclient = new redis();

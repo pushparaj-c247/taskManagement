@@ -6,6 +6,7 @@ import { validationResult } from "express-validator";
 import { filterQuery, queryObject } from "../interfaces/taskInterface";
 import { ParsedQs } from "qs"
 import Redis from "ioredis"
+import { Key } from "../config/env";
 
 
 
@@ -59,7 +60,6 @@ const getAllUser = async (object: sort, query: ParsedQs) => {
     filterQuery.$or = or;
 
   }
-
   const redisclient = new Redis();
   const cachedData = await redisclient.get(`allUser?col${search}?page=${page}?limit${limit}`);
   if (cachedData)
@@ -80,21 +80,15 @@ const getAllUser = async (object: sort, query: ParsedQs) => {
     {
       $sort: sort
     }
-
-
   ]);
-
   const options: object = {
     page,
     limit,
   };
-
   const response = await userSchema.aggregatePaginate(all, options);
   redisclient.set(`allUser?col${search}?page=${page}?limit${limit}`,
   JSON.stringify(response))
    return response;
- 
-
 }
 }
 
@@ -118,13 +112,7 @@ const login = async (req: Request, res: Response) => {
     });
   }
 
-  // Password validation using regex pattern
-  // const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/;
-  // if (!passwordPattern.test(password)) {
-  //   return res.status(400).json({
-  //     message: "Invalid password format",
-  //   });
-  // }
+
 
   const passwordMatch = await obj.validatePassword(password);
 
@@ -132,7 +120,7 @@ const login = async (req: Request, res: Response) => {
     return res.status(401).json({ message: "invalid password" });
   }
 
-  const token = jwt.sign({ email: obj.email, name: obj.name }, "ABcdefg", {
+  const token = jwt.sign({ email: obj.email, name: obj.name }, Key!, {
     expiresIn: "1h",
   });
   res.json({ message: "logged in successfully", token });

@@ -90,7 +90,7 @@ const getAllTask = (object, query) => __awaiter(void 0, void 0, void 0, function
                 });
             }
         });
-        filterQuery.$or = or;
+        // filterQuery.$or = or;
     }
     const redisclient = new ioredis_1.default();
     const cachedData = yield redisclient.get(`allTask?col${search}?page=${page}?limit${limit}`);

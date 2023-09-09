@@ -31,7 +31,7 @@ const updateTaskController = (
   try {
     const id: string  =  req.user!._id
     const updateT = updateTask(req.body, id);
-    return res.send(updateT);
+    return res.status(200).send(updateT);
   } catch (err) {
     console.log("Error In UpdateTask");
     next(err);

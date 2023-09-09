@@ -21,7 +21,7 @@ exports.app.use(`/${constant_1.default}/user`, index_1.routers);
 exports.app.use(`/${constant_1.default}/task`, index_1.router);
 exports.app.use(index_2.errorHandler);
 exports.app.use(index_2.errorLast);
-exports.app.listen(env_1.port, () => {
+exports.app.listen(env_1.Port, () => {
     console.log("server is started");
 });
 exports.default = exports.app;

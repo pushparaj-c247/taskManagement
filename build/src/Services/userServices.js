@@ -17,6 +17,7 @@ const userModel_1 = __importDefault(require("../Model/userModel"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const express_validator_1 = require("express-validator");
 const ioredis_1 = __importDefault(require("ioredis"));
+const env_1 = require("../config/env");
 const createUser = (obj) => __awaiter(void 0, void 0, void 0, function* () {
     const create = yield userModel_1.default.create(obj);
     return create;
@@ -117,18 +118,11 @@ const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             message: "invalid username & password",
         });
     }
-    // Password validation using regex pattern
-    // const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/;
-    // if (!passwordPattern.test(password)) {
-    //   return res.status(400).json({
-    //     message: "Invalid password format",
-    //   });
-    // }
     const passwordMatch = yield obj.validatePassword(password);
     if (!passwordMatch) {
         return res.status(401).json({ message: "invalid password" });
     }
-    const token = jsonwebtoken_1.default.sign({ email: obj.email, name: obj.name }, "ABcdefg", {
+    const token = jsonwebtoken_1.default.sign({ email: obj.email, name: obj.name }, env_1.Key, {
         expiresIn: "1h",
     });
     res.json({ message: "logged in successfully", token });

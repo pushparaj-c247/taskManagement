@@ -27,7 +27,7 @@ const updateTaskController = (req, res, next) => {
     try {
         const id = req.user._id;
         const updateT = (0, taskServices_1.updateTask)(req.body, id);
-        return res.send(updateT);
+        return res.status(200).send(updateT);
     }
     catch (err) {
         console.log("Error In UpdateTask");

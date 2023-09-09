@@ -100,7 +100,7 @@ describe('Delete User', () => {
     it("should delete a user", (done) => {
         supertest_1.default.agent(index_1.default)
             .delete(`/${constant_1.default}/user/deleteUser`)
-            .set('Authorization', `Bearer ${token}`) // Set the authorization token
+            .set('Authorization', `Bearer ${token}`)
             .expect(200)
             .then((res) => {
             (0, chai_1.expect)(res.text).to.equal("User Is Deleted Sucessfully");
