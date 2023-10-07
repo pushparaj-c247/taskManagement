@@ -3,4 +3,5 @@ dotenv.config();
 
 export const DB_URL = process.env.DB_URL ?? "";
 export const FAKE_URL = process.env.FAKE_URL ?? "";
-export const port = 4000;
+export const Port = process.env.Port
+export const Key = process.env.Key
